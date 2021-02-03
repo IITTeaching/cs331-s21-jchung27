@@ -58,7 +58,7 @@ def integer_right_triangles(p):
     count = 0 
     if(p%2 == 0):
         for b in range(1, p//2):
-            for a in range(b, p-b):
+            for a in range(b, p):
                 c = p - a - b
                 if (a**2 + b**2) == c**2:
                     count +=1
