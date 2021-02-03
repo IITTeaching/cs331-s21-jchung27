@@ -63,7 +63,7 @@ def integer_right_triangles(p):
                 if (a**2 + b**2) == c**2:
                     count +=1
 
-    return count 
+    return count
 
 def test3():
     tc = unittest.TestCase()
