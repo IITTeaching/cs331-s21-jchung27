@@ -112,17 +112,17 @@ def test1_2():
 def gen_passage(ngram_dict, length=100):
     passage = ""
     key = random.choice(sorted(ngram_dict.keys()))
-    passage += key 
+    passage += key + " "
     num = len(key.split())
     for i in range(length-num):
         added_word = random.choice(ngram_dict[key])
         for words in added_word:
-            passage += words 
+            passage += words + " "
         if added_word[-1] in ngram_dict.keys():
             key = added_word[-1]
         else:
             key = random.choice(sorted(ngram_dict.keys()))
-            passage += key 
+            passage += key + " "
     passage = passage.split()[:length]
     final_passage = " ".join(passage)
     return final_passage
