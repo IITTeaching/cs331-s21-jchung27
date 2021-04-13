@@ -22,12 +22,51 @@ class Heap:
     def _right(idx):
         return idx*2+2
 
+    def pos_exists(self, n):
+        return n < len(self)
+    
+    def switch_node(self, parent, child):
+        self.data[parent], self.data[child] = self.data[child], self.data[parent]
+
     def heapify(self, idx=0):
         ### BEGIN SOLUTION
+        key = self.key
+        lc = self._left(idx)
+        rc = self._right(idx)
+        if self.pos_exists(lc) and self.pos_exists(rc):
+            lcval = self.data[lc]
+            rcval = self.data[rc]
+            curval = self.data[idx]
+            if (self.key(lcval) > self.key(curval)) or (self.key(rcval) > self.key(curval)):
+                if self.key(lcval) > self.key(rcval):
+                    self.switch_node(idx, lc)
+                    self.heapify(lc)
+                else:
+                    self.switch_node(idx, rc)
+                    self.heapify(rc)
+        elif self.pos_exists(lc):
+            lcval = self.data[lc]
+            curval = self.data[idx]
+            if self.key(lcval) > self.key(curval):
+                self.switch_node(idx, lc)
+                self.heapify(lc)
         ### END SOLUTION
 
     def add(self, x):
         ### BEGIN SOLUTION
+        self.data.append(x)
+        idx = self.__len__() - 1
+        n = self.data[idx]
+        p = self.data[self._parent(idx)]
+        
+        while idx > 0:
+            if self.key(p) < self.key(n):
+                self.data[self._parent(idx)], self.data[idx] = self.data[idx], self.data[self._parent(idx)]
+                idx = self._parent(idx)
+                n = self.data[idx]
+                p = self.data[self._parent(idx)]
+            else:
+                break
         ### END SOLUTION
 
     def peek(self):
@@ -106,7 +145,6 @@ def test_key_heap_4():
 
     for x in lst:
         h.add(x)
-
     for x in range(999, -1000, -1):
         tc.assertEqual(x, h.pop())
 
@@ -130,7 +168,24 @@ def test_key_heap_5():
 ################################################################################
 def running_medians(iterable):
     ### BEGIN SOLUTION
+    min_heap = Heap(lambda x:-x)
+    max_heap = Heap()
+    medians = [0] * len(iterable)
+
+    for i, x in enumerate(iterable):
+        min_heap.add(x)
+        max_heap.add(min_heap.pop())
+        if len(max_heap) > len(min_heap):
+            min_heap.add(max_heap.peek())
+            max_heap.pop()
+        if len(min_heap) == len(max_heap):
+            medians[i] = (min_heap.peek() + max_heap.peek()) / 2
+        else:
+            medians[i] = min_heap.peek()
+
+    return medians
     ### END SOLUTION
+    pass
 
 ################################################################################
 # TESTS
@@ -174,7 +229,16 @@ def test_median_3():
 ################################################################################
 def topk(items, k, keyf):
     ### BEGIN SOLUTION
+    minHeap = Heap(keyf)
+    topk = []
+    for thing in items:
+        minHeap.add(thing)
+    for i in range(k):
+        topk.append(minHeap.pop())
+    return topk
+
     ### END SOLUTION
+    pass
 
 ################################################################################
 # TESTS
