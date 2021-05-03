@@ -23,7 +23,7 @@ class ExtensibleHashTable:
             return h
         except:
             raise KeyError
-        # END_SOLUTION
+        # END_SOLUTION  
 
     def __getitem__(self,  key):
         # BEGIN_SOLUTION
@@ -36,12 +36,12 @@ class ExtensibleHashTable:
 
     def __setitem__(self, key, value):
         # BEGIN_SOLUTION
-        i = hash(key) % self.n_buckets
-        while self.buckets[i] and self.buckets[i][0] != key: 
-            i += 1 
-            if i == self.n_buckets:
-                i %= self.n_buckets 
-        self.buckets[i] = [key, value]
+        h = hash(key) % self.n_buckets
+        while self.buckets[h] and self.buckets[h][0] != key: 
+            h += 1 
+            if h == self.n_buckets:
+                h %= self.n_buckets 
+        self.buckets[h] = [key, value]
         self.nitems += 1 
 
         if self.fillfactor == (self.nitems / self.n_buckets):

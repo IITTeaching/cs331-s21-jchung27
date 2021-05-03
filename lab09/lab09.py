@@ -53,6 +53,9 @@ class HBStree:
         KeyError, if key does not exist.
         """
         # BEGIN SOLUTION
+        if key in self:
+            return key
+        raise KeyError
         # END SOLUTION
 
     def __contains__(self, el):
@@ -60,6 +63,15 @@ class HBStree:
         Return True if el exists in the current version of the tree.
         """
         # BEGIN SOLUTION
+        node = self.root_versions[-1]
+        while node is not None:
+            if node.val == el:
+                return True
+            elif node.val < el:
+                node = node.right
+            else:
+                node = node.left
+        return False
         # END SOLUTION
 
     def insert(self,key):
@@ -69,12 +81,80 @@ class HBStree:
         from creating a new version.
         """
         # BEGIN SOLUTION
+        if key in self:
+            return
+        elif len(self.root_versions) == 1:
+            self.root_versions.append(self.INode(key, None, None))
+            return
+        node = self.root_versions[-1]
+        prev = []
+        while node is not None:
+            prev.append(node)
+            if node.val < key:
+                node = node.right
+            else:
+                node = node.left
+        node = self.INode(key, None, None)
+        if prev[-1].val < key:
+            prev[-1] = self.INode(prev[-1].val, prev[-1].left, node)
+        else:
+            prev[-1] = self.INode(prev[-1].val, node, prev[-1].right)
+        for i in range(len(prev) - 2, -1, -1):
+            if prev[i].val < prev[i+1].val:
+                prev[i] = self.INode(prev[i].val, prev[i].left, prev[i+1])
+            else:
+                prev[i] = self.INode(prev[i].val, prev[i+1], prev[i].right)
+        self.root_versions.append(prev[0])
         # END SOLUTION
 
     def delete(self,key):
         """Delete key from the tree, creating a new version of the tree. If key does not exist in the current version of the tree, then do nothing and refrain from creating a new version."""
         # BEGIN SOLUTION
+        if key not in self:
+                return
+        node = self.root_versions[-1]
+        if node.left is None and node.right is None:
+            self.root_versions.append(None)
+            return
+        prev = []
+        while node.val != key:
+            prev.append(node)
+            if node.val < key:
+                node = node.right
+            else:
+                node = node.left
+        replacement = self.find_replacement(node)
+        if node is self.root_versions[-1]:
+            self.root_versions.append(replacement)
+            return
+        if prev[-1].val < key:
+            prev[-1] = self.INode(prev[-1].val, prev[-1].left, replacement)
+        else:
+            prev[-1] = self.INode(prev[-1].val, replacement, prev[-1].right)
+        for i in range(len(prev) - 2, -1, -1):
+            if prev[i].val < key:
+                prev[i] = self.INode(prev[i].val, prev[i-1].left, prev[i+1])
+            else:
+                prev[i] = self.INode(prev[i].val, prev[i+1], prev[i].right)
+        self.root_versions.append(prev[0])
         # END SOLUTION
+
+    def find_replacement(self, node):
+        if node.left is None:
+            return node.right
+        elif node.right is None:
+            return node.left
+        replacement = node.left
+        prev = [node]
+        while replacement.right is not None:
+            prev.append(replacement)
+            replacement = replacement.right
+        if replacement.left is not None:
+            prev[-1] = self.INode(prev[-1].val, prev[-1].left, replacement.right)
+            for i in range(len(prev) - 2, -1, -1):
+                prev[i] = self.INode(prev[i].val, prev[i].left, prev[i+1])
+        replacement = self.INode(replacement.val, prev[0], node.right)
+        return replacement
 
     @staticmethod
     def subtree_size(node):
@@ -145,7 +225,17 @@ class HBStree:
         if timetravel < 0 or timetravel >= len(self.root_versions):
             raise IndexError(f"valid versions for time travel are 0 to {len(self.root_versions) -1}, but was {timetravel}")
         # BEGIN SOLUTION
+        return self.inorder_traversal(self.root_versions[-1 - timetravel])
         # END SOLUTION
+    
+    def inorder_traversal(self, node):
+        arr = []
+        if node is None:
+            return arr
+        arr.extend(self.inorder_traversal(node.left))
+        arr.append(node.val)
+        arr.extend(self.inorder_traversal(node.right))
+        return arr
 
     @staticmethod
     def stringify_subtree(root):
