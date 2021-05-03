@@ -15,6 +15,9 @@ class AVLTree:
 
         def rotate_left(self):
             ### BEGIN SOLUTION
+            n = self.right
+            self.val, n.val = n.val, self.val
+            self.right, n.right, self.left, n.left = n.right, n.left, n, self.left
             ### END SOLUTION
 
         @staticmethod
@@ -31,17 +34,106 @@ class AVLTree:
     @staticmethod
     def rebalance(t):
         ### BEGIN SOLUTION
+        balancefactor = height(t.right) - height(t.left)
+        if balancefactor < -1:
+            if height(t.left.left) > height(t.left.right):
+                newNode = t.left
+                t.rotate_right()
+                AVLTree.rebalance(newNode)
+            else:
+                newNode = t.left.right  
+                t.left.rotate_left()
+                t.rotate_right()
+                AVLTree.rebalance(newNode)
+            return
+        if balancefactor > 1:
+            if height(t.right.right) > height(t.right.left):
+                newNode = t.right
+                t.rotate_left()
+                AVLTree.rebalance(newNode)
+            else:
+                newNode = t.right.left
+                t.right.rotate_right()          
+                t.rotate_left()
+                AVLTree.rebalance(newNode)
+            return
         ### END SOLUTION
 
     def add(self, val):
         assert(val not in self)
         ### BEGIN SOLUTION
+        if self.root is None:
+            self.root = self.Node(val, None, None)
+            return
+
+        path = []
+        curNode = self.root
+        while True:
+            path.append(curNode)
+            if val < curNode.val:
+                if curNode.left:
+                    curNode = curNode.left
+                else:
+                    curNode.left = self.Node(val, None, None)
+                    break
+            else:
+                if curNode.right:
+                    curNode = curNode.right
+                else:
+                    curNode.right = self.Node(val, None, None)
+                    break
+
+        for x in reversed(path):
+            if abs(height(x.left) - height(x.right)) > 1:
+                self.rebalance(x)
+                break
         ### END SOLUTION
 
     def __delitem__(self, val):
         assert(val in self)
         ### BEGIN SOLUTION
+        if val == self.root.val:
+            self.root = self.replace(self.root)
+        else:
+            self.nodeCheck(self.root, val)
+        if self.root is not None:
+            self.rebalance(self.root)
         ### END SOLUTION
+
+    def nodeCheck(self, node, val):
+        if node.left is not None and node.left.val == val:
+            node.left = self.replace(node.left)
+            if node.left is not None:
+                self.rebalance(node.left)
+        elif node.right is not None and node.right.val == val:
+            node.right = self.replace(node.right)
+            if node.right is not None:
+                self.rebalance(node.right)
+        elif node.val < val:
+            self.nodeCheck(node.right, val)
+        elif node.val > val:
+            self.nodeCheck(node.left, val)
+        self.rebalance(node)
+
+    def replace(self, node):
+        if node.left == None:
+            return node.right
+        if node.right == None:
+            return node.left
+        if node.left.right == None:
+            node.left.right = node.right
+            return node.left
+        prev = [node]
+        cur = node.left
+        while cur.right is not None:
+            prev.append(cur)
+            cur = cur.right
+        prev[-1].right = cur.left
+        cur.left = node.left
+        cur.right = node.right
+        for i in range(len(prev) - 1, 0, -1):
+            self.rebalance(prev[i])
+        return cur
 
     def __contains__(self, val):
         def contains_rec(node):
