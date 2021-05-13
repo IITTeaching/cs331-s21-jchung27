@@ -17,14 +17,14 @@ def radix_a_book(book_url='https://www.gutenberg.org/files/84/84-0.txt'):
     return arr_of_words
     
 
-def countSort(arr, index, max_len):
+def countSort(arr, index, maxLength):
     output = [0 for i in range(len(arr))]
 
     count = [0 for i in range(128)]
 
     for word in arr:
-        if max_len - index < len(word):
-            count[word[max_len - index]] += 1
+        if maxLength - index < len(word):
+            count[word maxLength - index]] += 1
         else:
             count[0] += 1
     
@@ -32,9 +32,9 @@ def countSort(arr, index, max_len):
         count[i] += count[i-1]
     
     for i in range(len(arr)-1, -1, -1):
-        if max_len - index < len(arr[i]):
-            output[count[arr[i][max_len - index]]-1] = arr[i]
-            count[arr[i][max_len - index]] -= 1
+        if maxLength - index < len(arr[i]):
+            output[count[arr[i] maxLength - index]]-1] = arr[i]
+            count[arr[i] maxLength - index]] -= 1
         else:
             output[count[0] - 1] = arr[i]
             count[0] -= 1 
